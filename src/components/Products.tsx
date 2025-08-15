@@ -8,60 +8,67 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Centraliser l'URL du backend
-const API_URL = process.env.REACT_APP_API_URL;
+// URL du backend depuis Vercel env
+const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
 
 const Products = () => {
   const [categories, setCategories] = useState([{ id: "Tous", name: "Tous" }]);
   const [activeCategory, setActiveCategory] = useState("Tous");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Vérifier l'URL du backend
+  useEffect(() => {
+    console.log("API_URL:", API_URL);
+  }, []);
 
   // Charger les catégories
   useEffect(() => {
     fetch(`${API_URL}/api/categories/`)
-      .then((res) => res.json())
-      .then((data) => {
-        setCategories([{ id: "Tous", name: "Tous" }, ...data]);
+      .then((res) => {
+        if (!res.ok) throw new Error(`Erreur API catégories: ${res.status}`);
+        return res.json();
       })
+      .then((data) => setCategories([{ id: "Tous", name: "Tous" }, ...data]))
       .catch((err) => {
         console.error("Erreur lors du chargement des catégories :", err);
+        setError("Impossible de charger les catégories.");
       });
   }, []);
 
-  // Charger tous les produits UNE SEULE FOIS
+  // Charger les produits
   useEffect(() => {
     setLoading(true);
     setError(null);
 
     fetch(`${API_URL}/api/products/`)
       .then((res) => {
-        if (!res.ok) throw new Error("Erreur API");
+        if (!res.ok) throw new Error(`Erreur API produits: ${res.status}`);
         return res.json();
       })
-      .then((data) => {
-        setProducts(data);
-      })
+      .then((data) => setProducts(data))
       .catch((err) => {
         console.error("Erreur lors du chargement des produits :", err);
         setError("Impossible de charger les produits. Veuillez réessayer.");
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   }, []);
 
+  // Filtrer par catégorie
   const filteredProducts =
     activeCategory === "Tous"
       ? products
       : products.filter(
-          (p) => p.category && String(p.category.id) === String(activeCategory)
+          (p) =>
+            p.category &&
+            String(p.category.id ? p.category.id : p.category) ===
+              String(activeCategory)
         );
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4">
-      {/* Boutons de catégories */}
+      {/* Catégories */}
       <div className="flex flex-wrap gap-2 mb-6 justify-center">
         {categories.map((cat) => (
           <Button
@@ -98,10 +105,13 @@ const Products = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
             <Card key={product.id} className="overflow-hidden relative">
-              {/* Image + Badge catégorie */}
               <div className="relative">
                 <img
-                  src={product.image}
+                  src={
+                    product.image.startsWith("http")
+                      ? product.image
+                      : `${API_URL}${product.image}`
+                  }
                   alt={product.name}
                   className="w-full h-48 object-cover"
                 />
@@ -111,8 +121,6 @@ const Products = () => {
                   </span>
                 )}
               </div>
-
-              {/* Contenu du produit */}
               <CardHeader>
                 <CardTitle>{product.name}</CardTitle>
               </CardHeader>
@@ -135,7 +143,6 @@ const Products = () => {
         </div>
       )}
 
-      {/* Bouton Commande personnalisée centré */}
       <div className="flex justify-center mt-6">
         <Button
           size="lg"
