@@ -7,7 +7,10 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
 // URL du backend depuis variable d'environnement
-const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://backend-soxna-mai.onrender.com"
+    : "http://127.0.0.1:8000";
 
 const Login = () => {
   const [email, setEmail] = useState('');
