@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -59,12 +54,7 @@ const Products = () => {
   const filteredProducts =
     activeCategory === "Tous"
       ? products
-      : products.filter(
-          (p) =>
-            p.category &&
-            String(p.category.id ? p.category.id : p.category) ===
-              String(activeCategory)
-        );
+      : products.filter((p) => p.category?.id === activeCategory);
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4">
@@ -107,11 +97,7 @@ const Products = () => {
             <Card key={product.id} className="overflow-hidden relative">
               <div className="relative">
                 <img
-                  src={
-                    product.image.startsWith("http")
-                      ? product.image
-                      : `${API_URL}${product.image}`
-                  }
+                  src={product.image}
                   alt={product.name}
                   className="w-full h-48 object-cover"
                 />
@@ -143,6 +129,7 @@ const Products = () => {
         </div>
       )}
 
+      {/* Commande personnalisée */}
       <div className="flex justify-center mt-6">
         <Button
           size="lg"
