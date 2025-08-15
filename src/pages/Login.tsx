@@ -19,52 +19,51 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const response = await fetch(`${API_URL}/api/accounts/auth/login/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+  try {
+    const response = await fetch(`${API_URL}/api/accounts/auth/login/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      if (!response.ok) {
-        throw new Error('Email ou mot de passe incorrect');
-      }
+    if (!response.ok) {
+      throw new Error('Email ou mot de passe incorrect');
+    }
 
-      const data = await response.json();
-      console.log('Login response:', data);
+    const data = await response.json();
+    console.log('Login response:', data);
 
-      if (data.user.role !== 'admin') {
-        toast({
-          title: 'Accès refusé',
-          description: "Vous n'êtes pas autorisé à accéder au dashboard",
-          variant: 'destructive',
-        });
-        setLoading(false);
-        return;
-      }
-
-      localStorage.setItem('smk_admin_token', data.access);
-
+    if (data.user.role !== 'admin') {
       toast({
-        title: 'Connexion réussie',
-        description: `Bienvenue ${data.user.username}`,
-      });
-
-      navigate('/dashboard');
-    } catch (error: any) {
-      toast({
-        title: 'Erreur de connexion',
-        description: error.message || 'Une erreur est survenue',
+        title: 'Accès refusé',
+        description: "Vous n'êtes pas autorisé à accéder au dashboard",
         variant: 'destructive',
       });
-    } finally {
       setLoading(false);
+      return;
     }
-  };
+
+    localStorage.setItem('smk_admin_token', data.access);
+    toast({
+      title: 'Connexion réussie',
+      description: `Bienvenue ${data.user.username}`,
+    });
+    navigate('/dashboard');
+  } catch (error: any) {
+    toast({
+      title: 'Erreur de connexion',
+      description: error.message || 'Une erreur est survenue',
+      variant: 'destructive',
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle px-4">

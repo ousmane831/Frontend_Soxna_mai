@@ -19,7 +19,10 @@ export interface Product {
 }
 
 // Variable d'environnement pour le backend
-const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://backend-soxna-mai.onrender.com"
+    : "http://127.0.0.1:8000";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -39,34 +42,34 @@ const Dashboard = () => {
   }, [navigate]);
 
   // Récupération des produits
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const token = localStorage.getItem('smk_admin_token');
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+ useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const token = localStorage.getItem('smk_admin_token');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const res = await fetch(`${API_URL}/api/products/`, { headers });
-        if (!res.ok) throw new Error('Erreur lors de la récupération des produits');
-        const data = await res.json();
+      const res = await fetch(`${API_URL}/api/products/`, { headers });
+      if (!res.ok) throw new Error('Erreur lors de la récupération des produits');
+      const data = await res.json();
 
-        const productsWithCategoryName = data.map((p: any) => ({
-          ...p,
-          category: typeof p.category === 'string' ? p.category : p.category.name,
-        }));
+      const productsWithCategoryName = data.map((p: any) => ({
+        ...p,
+        category: typeof p.category === 'string' ? p.category : p.category.name,
+      }));
 
-        setProducts(productsWithCategoryName);
-      } catch (err) {
-        console.error(err);
-        toast({
-          title: 'Erreur',
-          description: 'Impossible de charger les produits.',
-          variant: 'destructive',
-        });
-      }
-    };
-    fetchProducts();
-  }, [toast]);
+      setProducts(productsWithCategoryName);
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de charger les produits.',
+        variant: 'destructive',
+      });
+    }
+  };
+  fetchProducts();
+}, [toast]);
 
   const handleLogout = () => {
     localStorage.removeItem('smk_admin_token');
