@@ -5,6 +5,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Edit, Trash2 } from 'lucide-react';
 import { Product } from '@/pages/Dashboard';
 
+// Récupération de l'URL du backend depuis les variables d'environnement
+const API_URL = process.env.REACT_APP_API_URL;
+
 interface ProductsListProps {
   products: Product[];
   onEdit: (product: Product) => void;
@@ -35,7 +38,7 @@ const ProductsList: React.FC<ProductsListProps> = ({ products, onEdit, onDelete 
               src={
                 product.image.startsWith('http')
                   ? product.image
-                  : `http://127.0.0.1:8000${product.image}`
+                  : `${API_URL}${product.image}`
               }
               alt={product.name}
               className="w-full h-full object-cover"
@@ -56,7 +59,6 @@ const ProductsList: React.FC<ProductsListProps> = ({ products, onEdit, onDelete 
                   ? product.category
                   : (product.category as { name: string })?.name || 'Sans catégorie'}
               </Badge>
-
             </div>
 
             <div className="flex gap-2">

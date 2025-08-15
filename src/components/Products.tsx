@@ -8,6 +8,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// Centraliser l'URL du backend
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Products = () => {
   const [categories, setCategories] = useState([{ id: "Tous", name: "Tous" }]);
   const [activeCategory, setActiveCategory] = useState("Tous");
@@ -17,7 +20,7 @@ const Products = () => {
 
   // Charger les catégories
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/categories/")
+    fetch(`${API_URL}/api/categories/`)
       .then((res) => res.json())
       .then((data) => {
         setCategories([{ id: "Tous", name: "Tous" }, ...data]);
@@ -32,7 +35,7 @@ const Products = () => {
     setLoading(true);
     setError(null);
 
-    fetch("http://127.0.0.1:8000/api/products/")
+    fetch(`${API_URL}/api/products/`)
       .then((res) => {
         if (!res.ok) throw new Error("Erreur API");
         return res.json();
@@ -49,14 +52,11 @@ const Products = () => {
       });
   }, []);
 
-  // Filtrer les produits selon catégorie active
   const filteredProducts =
     activeCategory === "Tous"
       ? products
       : products.filter(
-          (p) =>
-            p.category &&
-            String(p.category.id) === String(activeCategory)
+          (p) => p.category && String(p.category.id) === String(activeCategory)
         );
 
   return (

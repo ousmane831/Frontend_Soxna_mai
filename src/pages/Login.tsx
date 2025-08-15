@@ -6,6 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
+// URL du backend depuis variable d'environnement
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,7 +21,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/accounts/auth/login/', {
+      const response = await fetch(`${API_URL}/api/accounts/auth/login/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -42,7 +45,6 @@ const Login = () => {
       }
 
       localStorage.setItem('smk_admin_token', data.access);
-
 
       toast({
         title: 'Connexion réussie',

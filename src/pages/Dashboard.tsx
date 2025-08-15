@@ -13,10 +13,13 @@ export interface Product {
   id: number;
   name: string;
   price: number;
-  category: string; // ici c'est toujours un string pour le filtre
+  category: string; // toujours string pour le filtre
   image: string;
   description?: string;
 }
+
+// Variable d'environnement pour le backend
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -43,11 +46,10 @@ const Dashboard = () => {
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const res = await fetch('http://127.0.0.1:8000/api/products/', { headers });
+        const res = await fetch(`${API_URL}/api/products/`, { headers });
         if (!res.ok) throw new Error('Erreur lors de la récupération des produits');
         const data = await res.json();
 
-        // Convertir category en string
         const productsWithCategoryName = data.map((p: any) => ({
           ...p,
           category: typeof p.category === 'string' ? p.category : p.category.name,
@@ -76,7 +78,7 @@ const Dashboard = () => {
   const handleAddProduct = async (formData: FormData) => {
     try {
       const token = localStorage.getItem('smk_admin_token');
-      const res = await fetch('http://127.0.0.1:8000/api/products/', {
+      const res = await fetch(`${API_URL}/api/products/`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
@@ -89,7 +91,6 @@ const Dashboard = () => {
       }
 
       const newProduct = await res.json();
-      // Convertir category en string
       newProduct.category = typeof newProduct.category === 'string' ? newProduct.category : newProduct.category.name;
 
       setProducts(prev => [...prev, newProduct]);
@@ -106,7 +107,7 @@ const Dashboard = () => {
     if (!editingProduct) return;
     try {
       const token = localStorage.getItem('smk_admin_token');
-      const res = await fetch(`http://127.0.0.1:8000/api/products/${editingProduct.id}/`, {
+      const res = await fetch(`${API_URL}/api/products/${editingProduct.id}/`, {
         method: 'PUT',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
@@ -132,35 +133,34 @@ const Dashboard = () => {
   };
 
   // Supprimer un produit
-const handleDeleteProduct = async (id: number) => {
-  const confirmed = window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?");
-  if (!confirmed) return; // Si l'utilisateur annule, on sort
+  const handleDeleteProduct = async (id: number) => {
+    const confirmed = window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?");
+    if (!confirmed) return;
 
-  try {
-    const token = localStorage.getItem('smk_admin_token');
-    const res = await fetch(`http://127.0.0.1:8000/api/products/${id}/`, {
-      method: 'DELETE',
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
+    try {
+      const token = localStorage.getItem('smk_admin_token');
+      const res = await fetch(`${API_URL}/api/products/${id}/`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
 
-    if (!res.ok) throw new Error('Erreur lors de la suppression du produit');
+      if (!res.ok) throw new Error('Erreur lors de la suppression du produit');
 
-    const deleted = products.find(p => p.id === id);
-    setProducts(products.filter(p => p.id !== id));
-    toast({
-      title: 'Produit supprimé',
-      description: `${deleted?.name} a été supprimé`
-    });
-  } catch (err) {
-    console.error(err);
-    toast({
-      title: 'Erreur',
-      description: 'Impossible de supprimer le produit.',
-      variant: 'destructive'
-    });
-  }
-};
-
+      const deleted = products.find(p => p.id === id);
+      setProducts(products.filter(p => p.id !== id));
+      toast({
+        title: 'Produit supprimé',
+        description: `${deleted?.name} a été supprimé`
+      });
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de supprimer le produit.',
+        variant: 'destructive'
+      });
+    }
+  };
 
   const openEditForm = (product: Product) => {
     setEditingProduct(product);
@@ -173,13 +173,12 @@ const handleDeleteProduct = async (id: number) => {
   };
 
   // Filtrage par catégorie et recherche
-  const normalize = (str: string) => 
-  str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-const filteredProducts = products.filter(p =>
-  selectedCategory === 'Tous' || normalize(p.category) === normalize(selectedCategory)
-);
-
+  const filteredProducts = products.filter(p =>
+    (selectedCategory === 'Tous' || normalize(p.category) === normalize(selectedCategory)) &&
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const stats = { total: products.length };
 
