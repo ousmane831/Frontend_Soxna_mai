@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // URL du backend depuis Vercel env
-const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://backend-soxna-mai.onrender.com" // URL de ton backend déployé
+    : "http://127.0.0.1:8000"; // localhost pour dev
 
 const Products = () => {
   const [categories, setCategories] = useState([{ id: "Tous", name: "Tous" }]);
