@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/content/CartContent";
 
@@ -51,18 +51,19 @@ const Navbar = () => {
 
         {/* Panier */}
         <div className="relative">
-          <Button 
-            variant="ghost"
-            className="relative text-gold hover:text-yellow-400" 
-            onClick={() => setShowCart(!showCart)}
-          >
-            🛒
-            {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center text-xs text-white">
-                {totalItems}
-              </span>
-            )}
-          </Button>
+          <Button
+              variant="ghost"
+              className="relative text-gold hover:text-yellow-400"
+              onClick={() => setShowCart(!showCart)}
+            >
+              <ShoppingCart className="w-6 h-6" />
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center text-xs text-white">
+                  {totalItems}
+                </span>
+              )}
+            </Button>
+
 
 
           {showCart && (
