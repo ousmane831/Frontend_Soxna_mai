@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Menu, X, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/content/CartContent";
-import { FaWhatsapp } from "react-icons/fa";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,76 +52,57 @@ const Navbar = () => {
           ))}
         </div>
 
-        <div className="flex items-center space-x-4">
-
-          {/* Panier */}
-          <div className="relative">
-            <Button
-              variant="ghost"
-              className="relative text-gold hover:text-yellow-400"
-              onClick={() => setShowCart(!showCart)}
-            >
-              <ShoppingCart className="w-6 h-6" />
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center text-xs text-white">
-                  {totalItems}
-                </span>
-              )}
-            </Button>
-
-            {showCart && (
-              <div className="absolute right-0 mt-2 w-72 bg-white border shadow-lg p-4 rounded-lg">
-                <h3 className="font-bold mb-2">Panier ({totalItems} articles)</h3>
-                {totalItems === 0 && <p>Votre panier est vide.</p>}
-                <ul>
-                  {Object.values(cart).map((item) => (
-                    <li
-                      key={item.product.id}
-                      className="flex justify-between items-center mb-2"
-                    >
-                      <span>{item.product.name}</span>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          size="sm"
-                          onClick={() => decreaseQuantity(item.product.id)}
-                        >
-                          -
-                        </Button>
-                        <span>{item.quantity}</span>
-                        <Button size="sm" onClick={() => addToCart(item.product)}>
-                          +
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                {totalItems > 0 && (
-                  <Button
-                    className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-semibold"
-                    onClick={orderCart}
-                  >
-                    Commander
-                  </Button>
-                )}
-              </div>
+        {/* Panier */}
+        <div className="relative">
+          <Button
+            variant="ghost"
+            className="relative text-gold hover:text-yellow-400"
+            onClick={() => setShowCart(!showCart)}
+          >
+            <ShoppingCart className="w-6 h-6" />
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center text-xs text-white">
+                {totalItems}
+              </span>
             )}
-          </div>
+          </Button>
 
-          {/* Bouton WhatsApp */}
-          <div className="hidden md:block">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white"
-              onClick={() =>
-                window.open("https://wa.me/221778775858", "_blank")
-              }
-            >
-              <FaWhatsapp className="w-4 h-4 mr-2" />
-              WhatsApp
-            </Button>
-          </div>
-
+          {showCart && (
+            <div className="absolute right-0 mt-2 w-72 bg-white border shadow-lg p-4 rounded-lg">
+              <h3 className="font-bold mb-2">Panier ({totalItems} articles)</h3>
+              {totalItems === 0 && <p>Votre panier est vide.</p>}
+              <ul>
+                {Object.values(cart).map((item) => (
+                  <li
+                    key={item.product.id}
+                    className="flex justify-between items-center mb-2"
+                  >
+                    <span>{item.product.name}</span>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="sm"
+                        onClick={() => decreaseQuantity(item.product.id)}
+                      >
+                        -
+                      </Button>
+                      <span>{item.quantity}</span>
+                      <Button size="sm" onClick={() => addToCart(item.product)}>
+                        +
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              {totalItems > 0 && (
+                <Button
+                  className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-semibold"
+                  onClick={orderCart}
+                >
+                  Commander
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Menu mobile */}
@@ -149,18 +129,6 @@ const Navbar = () => {
               {item.name}
             </a>
           ))}
-          {/* Mobile WhatsApp */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white mt-2 w-full"
-            onClick={() =>
-              window.open("https://wa.me/221778775858", "_blank")
-            }
-          >
-            <FaWhatsapp className="w-4 h-4 mr-2" />
-            WhatsApp
-          </Button>
         </div>
       )}
     </nav>
