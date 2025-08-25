@@ -56,7 +56,7 @@ const Navbar = () => {
         <div className="relative">
           <Button
             variant="ghost"
-            className="relative text-gold hover:text-yellow-400"
+            className="relative text-gold "
             onClick={() => setShowCart(!showCart)}
           >
             <ShoppingCart className="w-6 h-6" />
