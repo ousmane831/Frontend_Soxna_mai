@@ -51,7 +51,11 @@ const Navbar = () => {
 
         {/* Panier */}
         <div className="relative">
-          <Button className="relative bg-blue-600 text-white" onClick={() => setShowCart(!showCart)}>
+          <Button 
+            variant="ghost"
+            className="relative text-gold hover:text-yellow-400" 
+            onClick={() => setShowCart(!showCart)}
+          >
             🛒
             {totalItems > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center text-xs text-white">
@@ -59,6 +63,7 @@ const Navbar = () => {
               </span>
             )}
           </Button>
+
 
           {showCart && (
             <div className="absolute right-0 mt-2 w-72 bg-white border shadow-lg p-4 rounded-lg">
