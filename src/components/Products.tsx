@@ -12,6 +12,11 @@ export interface Product {
   description?: string;
 }
 
+interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
 const API_URL =
   process.env.NODE_ENV === "production"
     ? "https://backend-soxna-mai.onrender.com"
@@ -26,31 +31,91 @@ const Products: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [cart, setCart] = useState<Record<number, CartItem>>({});
+  const [showCart, setShowCart] = useState(false);
+
   // Charger catégories
   useEffect(() => {
     fetch(`${API_URL}/api/categories/`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`Erreur API catégories: ${res.status}`);
+        return res.json();
+      })
       .then((data) => setCategories([{ id: "Tous", name: "Tous" }, ...data]))
-      .catch(() => setError("Impossible de charger les catégories."));
+      .catch((err) => {
+        console.error(err);
+        setError("Impossible de charger les catégories.");
+      });
   }, []);
 
   // Charger produits
   useEffect(() => {
     setLoading(true);
     fetch(`${API_URL}/api/products/`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`Erreur API produits: ${res.status}`);
+        return res.json();
+      })
       .then((data: Product[]) => setProducts(data))
-      .catch(() => setError("Impossible de charger les produits."))
+      .catch((err) => {
+        console.error(err);
+        setError("Impossible de charger les produits.");
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  // Ajouter au panier
+  const addToCart = (product: Product) => {
+    setCart((prev) => {
+      const copy = { ...prev };
+      if (copy[product.id]) {
+        copy[product.id].quantity += 1;
+      } else {
+        copy[product.id] = { product, quantity: 1 };
+      }
+      return copy;
+    });
+  };
+
+  // Diminuer quantité ou supprimer produit
+  const decreaseQuantity = (productId: number) => {
+    setCart((prev) => {
+      const copy = { ...prev };
+      if (copy[productId]) {
+        if (copy[productId].quantity > 1) {
+          copy[productId].quantity -= 1;
+        } else {
+          delete copy[productId];
+        }
+      }
+      return copy;
+    });
+  };
+
+  // Commander le panier sur WhatsApp
+  const orderCart = () => {
+    const message = Object.values(cart)
+      .map(
+        ({ product, quantity }) =>
+          `${product.name} x${quantity} (${product.price * quantity} FCFA)`
+      )
+      .join("\n");
+    const finalMessage = `Bonjour, je souhaite commander les produits suivants :\n${message}`;
+    window.open(
+      `https://wa.me/221778775858?text=${encodeURIComponent(finalMessage)}`,
+      "_blank"
+    );
+  };
 
   const filteredProducts =
     activeCategory === "Tous"
       ? products
       : products.filter((p) => p.category === activeCategory);
 
+  const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4">
+    <div className="max-w-7xl mx-auto py-10 px-4 relative">
       {/* Catégories */}
       <div className="flex flex-wrap gap-2 mb-4 justify-center">
         {categories.map((cat) => (
@@ -62,6 +127,65 @@ const Products: React.FC = () => {
             {cat.name}
           </Button>
         ))}
+      </div>
+
+      {/* Section produit + panier */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold">Produits</h2>
+        <Button
+          className="relative bg-blue-600 text-white"
+          onClick={() => setShowCart(!showCart)}
+        >
+          🛒
+          {totalItems > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center text-xs text-white">
+              {totalItems}
+            </span>
+          )}
+        </Button>
+
+        {/* Menu panier */}
+        {showCart && (
+          <div className="absolute mt-2 right-0 w-72 bg-white border shadow-lg p-4 rounded-lg z-50">
+            <h3 className="font-bold mb-2">Panier ({totalItems} articles)</h3>
+            {totalItems === 0 && <p>Votre panier est vide.</p>}
+            <ul>
+              {Object.values(cart).map(({ product, quantity }) => (
+                <li
+                  key={product.id}
+                  className="flex justify-between items-center mb-2"
+                >
+                  <span>{product.name}</span>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      size="sm"
+                      className="bg-gray-200 text-black"
+                      onClick={() => decreaseQuantity(product.id)}
+                    >
+                      -
+                    </Button>
+                    <span>{quantity}</span>
+                    <Button
+                      size="sm"
+                      className="bg-gray-200 text-black"
+                      onClick={() => addToCart(product)}
+                    >
+                      +
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {totalItems > 0 && (
+              <Button
+                className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-semibold"
+                onClick={orderCart}
+              >
+                Commander le panier
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Erreur */}
@@ -100,6 +224,13 @@ const Products: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <p className="font-bold mt-2">{product.price} FCFA</p>
+
+                <Button
+                  className="mt-2 w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold"
+                  onClick={() => addToCart(product)}
+                >
+                  Ajouter au panier
+                </Button>
 
                 <Button
                   className="mt-2 w-full bg-green-500 hover:bg-green-600 text-white font-semibold"
