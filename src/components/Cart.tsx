@@ -8,15 +8,21 @@ interface CartItem {
 }
 
 interface CartProps {
-  cart: Record<number, CartItem>;
+  cart?: Record<number, CartItem>; // rendu optionnel pour plus de sécurité
   addToCart: (product: Product) => void;
   decreaseQuantity: (productId: number) => void;
   orderCart: () => void;
 }
 
-const Cart: React.FC<CartProps> = ({ cart, addToCart, decreaseQuantity, orderCart }) => {
-  const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+const Cart: React.FC<CartProps> = ({
+  cart = {}, // valeur par défaut vide
+  addToCart,
+  decreaseQuantity,
+  orderCart,
+}) => {
   const [showCart, setShowCart] = React.useState(false);
+
+  const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div className="relative">
